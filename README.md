@@ -14,8 +14,10 @@ obs: a interface web começou a ser desenvolvida mas foi pausada para dar priori
 
 
 iniciar servidor
+
 	python main.py
 
 iniciar interface grafica
+
 	python game.py
 
