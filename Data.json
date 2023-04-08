@@ -1,0 +1,82 @@
+{
+  "Resultados": {
+    "00000000-0000-0000-0000-000000000000": { //id da partida 
+      "players": {
+        
+        "03e1e765-b364-44db-8d7d-bc916e336a7a": {       //id do jogador
+          "id": "03e1e765-b364-44db-8d7d-bc916e336a7a", //id do jogador
+          "nome": "Tom", // nome do jogador
+          "posicao": 51, //posição que ele terminou o jogo
+          "saldo": 12000 //pontuação que ele terminou o jogo
+        }
+      },
+      "time": 1637518722.6804488 // quando o jogo terminou // horario do firebase
+    },
+  },
+
+
+  "Usuarios": { //todos usuarios que já jogaram
+    "03e1e765-b364-44db-8d7d-bc916e336a7a": {  //id do jogador
+      "id": "03e1e765-b364-44db-8d7d-bc916e336a7a",//id do jogador
+      "nome": "esquerda" //nome do jogador
+    }
+  },
+  
+  "idJogos": { //id de todos as partidas ja criadas,
+    "-Mps4I40-XUuDik42gc-": "60e22fb1-67dd-4c9a-86a4-b1b77ce2969b",
+    "-Mps97MGpMjFRJVWP5mT": "d875ed64-86f6-4e9b-b2b1-aeaeda2ea718",
+    "-NSXcA7RgfttPEBx5BkJ": "0df2b916-a211-44d0-9044-62770e99a174",
+    "-NSXco7SxeDZigGs5O2F": "4b528df2-6d40-4e7c-87a5-98007b6356f8",
+    "-NSXetKmF6NeRe9PYXFc": "2b55348f-f574-4d1f-b3fb-41d57c46f3b7"
+  },
+
+
+  "jogos": { // partidas em andamento
+    "0df2b916-a211-44d0-9044-62770e99a174": { //id da partida
+      "VezDeJogar": "f741f823-da8d-4fde-a3e0-919d49c6253e", // id do jogador que tem a vez de executar uma ação
+      "fila": { // lista dos jogadores da partida, por ordem de jogada
+        "0_": "ff4af5a0-f32f-480e-8b99-d7c56ec7c205",
+        "1_": "f741f823-da8d-4fde-a3e0-919d49c6253e"
+      },
+
+      "jogada": { //resultado da roleta apos açao do jogador
+        "P_atual": 5, //posição atual do jogador
+        "P_prox": 10, // proxima posição apos mover seu  
+        "Roleta": 5,  // numero de casas a mover o totem, sorteado na roleta 
+        "id": "f741f823-da8d-4fde-a3e0-919d49c6253e", //id do jogador que efetuou o moviemnto
+        "nome": "sdfdsfds" //nome do jogador
+      },
+
+      "players": { //jogadores que estao participando da partidda
+        "f741f823-da8d-4fde-a3e0-919d49c6253e": { //id do jogador
+          "id": "f741f823-da8d-4fde-a3e0-919d49c6253e", //id do jogador
+          "nome": "sdfdsfds", // nome do jogador
+          "posicao": 0, //posição do jogador no tabuleiro
+          "saldo": 10000 //saldo de pontos do jogador
+        },
+        "ff4af5a0-f32f-480e-8b99-d7c56ec7c205": {
+          "id": "ff4af5a0-f32f-480e-8b99-d7c56ec7c205",
+          "nome": "user 1",
+          "posicao": 0,
+          "saldo": 10000
+        }
+      },
+      "status": "start", // status do jogo
+      "trilha": [ //informações sobre a trilha sorteada do jogo, cada casa pode ter um item de sorte ou revez
+        {
+          "action": [ //consequencia por parar nessa casa
+            "Foi sorteado", // texto a ser exibido
+            3500 //valor em pontos a ser processado do saldo do jogador(positivo  ou negativo)
+          ],
+          "number": 0, // numero da casa
+          "status": 0 //esta oucupada ou nao por outro jogador
+        },
+        {"..."},
+        {
+          "number": 51,
+          "status": 0
+        }
+      ]
+    }
+  }
+}

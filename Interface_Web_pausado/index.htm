@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Jogo da Vida Online</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" src="functions.js"></script>
+</head>
+<body>
+	<script src="https://www.gstatic.com/firebasejs/8.9.1/firebase.js"></script>
+ 	<script>
+		const firebaseConfig = {
+			apiKey: "AIzaSyA3fy6bK4oW89iOffeRq5oGfMnInPqTn6g",
+			authDomain: "jogodavida-2020.firebaseapp.com",
+			databaseURL: "https://jogodavida-2020-default-rtdb.firebaseio.com",
+			projectId: "jogodavida-2020",
+			storageBucket: "jogodavida-2020.appspot.com",
+			messagingSenderId: "36925371496",
+			appId: "1:36925371496:web:cc8646520dee81456377dd",
+			measurementId: "G-84BKTK24Q2"
+		};
+		// Initialize Firebase
+		firebase.initializeApp(firebaseConfig);
+	</script>
+	<div class="PopUp PopUp_esconde" id="PopUp"> 
+		<div class="nome"></div>
+		<div class="texto"></div>
+		<div class="valor"></div>
+	</div>
+	<div>
+		<a href="#listapartidas">Lista de partidas</a>
+	</div>
+	<!-- /////////////////////////////////////////////////////////////////////////
+	/////////// CADASTRO ////// CADASTRO ////// CADASTRO ////// CADASTRO /////////
+	/////////////////////////////////////////////////////////////////////////-->
+	 <div id="form_cadastro" class="abas">
+		<div class="content">
+			<span>Cadastro de usuario</span>
+			<form method = "post" id = "form_1" onsubmit = "return false">
+				NickName: <input type="text" name="nome">			
+				<input type="submit" value=".::Entrar::.">
+			</form>
+		</div>
+	</div>
+	<!-- /////////////////////////////////////////////////////////////////////////
+	/////////// status jogo/////////// status jogo/////////// status jogo/////////
+	/////////////////////////////////////////////////////////////////////////-->
+	<div id="status_jogo" class="abas">
+		<div>Jogares na partida:<span id="n_p_p">x</span></div>
+		<div id="lista_jogadores">
+			lista de jogadores
+		</div>
+		<span>O jogo podera começar quando completar X jogadores</span>
+	</div>
+	<!-- /////////////////////////////////////////////////////////////////////////
+	/////////// Lista jogos ////// Lista jogos ////// Lista jogos ////////////////
+	/////////////////////////////////////////////////////////////////////////-->
+	<div id="listapartidas" class="abas">
+		<div>Seja bem vindo, escolha uma partida abaixo para jogar ou, <input type="button" id="bt_new_partida" value="Criar Nova Partida"></div>
+		<div id="itensList">
+			
+		</div>
+
+	</div>
+
+	<!-- /////////////////////////////////////////////////////////////////////////
+	/////////// GAME ////// GAME ////// GAME ////// GAME ////// GAME ////////////
+	/////////////////////////////////////////////////////////////////////////-->
+	<div id="jogo"  class="abas">
+		<div id="teste"></div>
+		<div id="trilha">
+			<img src="images/trilha.png" id="img_trilha">
+		</div>
+		<div id="roleta">
+			<div id="AroRoleta" class="container">
+				<div id="d_0"></div>
+				<div id="d_1"></div>
+				<div id="d_2"></div>
+				<div id="d_3"></div>
+				<div id="d_4"></div>
+				<div id="d_5"></div>
+				<div id="d_6"></div>
+				<div id="d_7"></div>
+			</div>
+			<input type="button" name="GirarRoleta" id="bt_girar_roleta" value="Girar Roleta" disabled="true">
+		</div>
+		<div id="fila">
+			<div id="nickname_bar">Meu Nickname: <span id="nickname"></span></div>
+			<div id="prox_jogar">Aguardando <span id="proxplayer">Fulano</span> jogar:<span id="regrestime"></span></div>
+			<div id="listafila">
+				<div class="listPlayers">Participantes</div>
+				<div class="listPlayers">
+					<div class="P_Nome">Nome</div>
+					<div class="P_Saldo">00,00</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////-->
+</body>
+</html>
+<script type="text/javascript">
+
+if(!window.user){
+	window.location="#form_cadastro"
+}
+
+window.status = false
+calc_roleta(1)
+
+getId("bt_girar_roleta").addEventListener("click", function(){
+	writeData("jogos/"+window.idgame+"/VezDeJogar/",null, false, false)
+});
+
+getId("bt_new_partida").addEventListener("click", 	)
+
+//listner de formulario para cadastrar um usuario
+document.getElementById("form_1").onsubmit = function(){
+	var user = new Object();
+			user.nome = document.getElementById("form_1").nome.value;
+			user.id = create_UUID();
+	user = JSON.parse(JSON.stringify(user))
+	writeData("Usuarios/"+user['id'],user, false, false)
+	window.user = user
+	window.location = "#listapartidas"
+	getId("nickname").innerHTML = user["nome"]
+	/////////////////////////////////////////////////////////
+	//getId("jogar").click()
+	return false
+}
+
+
+function entranaPartida(idgame){
+	window.idgame = idgame
+	writeData("jogos/"+window.idgame+"/players/"+window.user["id"],window.user, false, false)
+	window.location="#status_jogo"
+	statusgame = firebase.database().ref('jogos/' + window.idgame);
+	statusgame.on('value', (snapshot) => {
+		data = snapshot.val()
+		if(!window.Trilha && data.trilha){
+			window.Trilha = data.trilha
+		}
+		preenche_info(data)
+	});
+
+	jogadas = firebase.database().ref('jogos/' + window.idgame+"/jogada");
+	jogadas.on('value', async function (data){
+		data=data.val()
+		if(data){
+			console.log(data)
+			giraRoleta(data.Roleta)
+			await delay(2200)
+			moveElement(getId("icon"+data.id), data.P_atual, data.P_prox)
+			if(window.Trilha[data.P_prox].action){
+				console.log(window.Trilha[data.P_prox].action)
+				query("#PopUp .nome" ).innerHTML=data.nome
+				query("#PopUp .texto").innerHTML=window.Trilha[data.P_prox].action[0]
+				query("#PopUp .valor").innerHTML=window.Trilha[data.P_prox].action[1]
+
+				getId("PopUp").classList.remove("PopUp_esconde")
+				setTimeout(function(){
+					getId("PopUp").classList.add("PopUp_esconde")
+				}, 3000)
+			}
+			//regresTime(30, getId("regrestime"))
+		}
+	});
+
+}
+
+
+partidas = firebase.database().ref("jogos");
+partidas.on('value', function (data){
+	getId("itensList").innerHTML=""
+	data=data.val()
+	cont = 1
+	for (key in data){
+		if(data[key].status == "AddPlayers"){
+			div = document.createElement("div")
+			div.id = key
+			div.classList.add("line")
+			div.innerHTML = '<div class="coll">Partida:'+(cont++)+', Status :Aberto</div><div class="coll">_ jogadors</div><div class="coll"><input type="button" value="Jogar"></div>'
+			div.addEventListener("click", function(){
+				console.log(this.id)
+				entranaPartida(this.id)
+			})			
+			getId("itensList").append(div)
+		}
+	}
+});
+
+</script>

@@ -1,0 +1,139 @@
+import random
+import time
+class game(object):
+	#modulo defaut 
+	def __init__(self):
+		#define algumas config basicas do game
+		self.config ={
+		"Posicoes"	: 50,		#numero de casas no tabuleiro
+		"NPlayers"	: [2,4],	#numero de jogadores permitido, de X a Y 
+		"TamRoleta"	: 4}		#posições possiveis na Roleta
+		#lista de itens de sorte presentes no game
+		#Podem ser adicionados ou removidos dinamicamente
+		self.P_Sorte	= [
+			["Ganhou na loteria",  5000],
+		 	["Fez um bom Negocio", 1500],
+		 	["Foi sorteado",  3500],
+			["Ganhou na loteria",  5000],
+		 	["Fez um bom Negocio", 1500],
+		 	["Foi sorteado",  3500]]
+		#lista de itens de Reves presentes no game
+		#Podem ser adicionados ou removidos dinamicamente
+		#antes do inicio da partida
+		self.P_Reves = [
+			["Bateu o Carro",		-5000],
+			["Tv Queimou", 			-1500],
+			["Perdeu SmartPhone",	-3500],
+			["Bateu o Carro",		-5000],
+			["Tv Queimou", 			-1500],
+			["Perdeu SmartPhone",	-3500]]
+		#lista com os jogadores da partida atual
+		self.players=[]
+		self.trilha = None
+
+	#adiciona novo player
+	def AddPlayer(self, nome):
+		self.players.append(NewPlayer(nome))
+
+	# sorteia a posição de cada casa de sorte ou revez na trilha
+	def SortTrilhaGame(self, interavel):
+		for item in interavel:
+			while 1:
+				key=random.randint(1, len(self.trilha)-1) #obtem uma posição numerica aleatorio de uma casa na trilha
+				if self.trilha[key].action == None: #verifica se esta posição esta livre
+					self.trilha[key].action = item  # define  sorte/revez como ação da casa 
+					break
+	
+	# configura o game
+	def configure(self):
+		#gera a trilha do game
+		self.trilha	= {x:item_Trilha(x) for x in range(self.config["Posicoes"])}
+		self.SortTrilhaGame(self.P_Sorte)
+		self.SortTrilhaGame(self.P_Reves)
+
+	# giro da roleta, sorteia um numero
+	def GiraRoleta(self):
+		return random.randint(1, self.config["TamRoleta"])
+
+	#retorna o ultimo item de um dicionario
+	def LastItem(self, dic):
+		return dic[list(dic.keys())[-1]]
+
+	# Da inicio a partida
+	def start(self):
+		P_Fila=0
+		random.shuffle(self.players)
+		#enquanto status for 0,
+		#ninguem chegou ao final da trilha, continua o game
+		while self.LastItem(self.trilha).status==0:
+			player	= self.players[P_Fila]
+			Roleta	= self.GiraRoleta()
+			P_prox	= min(player.posicao+Roleta, len(self.trilha)-1)
+			
+			print(player.nome, player.posicao, player.saldo)
+
+			while (P_prox<len(self.trilha)-2) and (self.trilha[P_prox].status!=0):
+				P_prox+=1
+			else:
+				player.andar(P_prox, self)
+
+			#incrementa +1 a posição da fila, ou volta ao primeiro
+			P_Fila=(P_Fila+1 if P_Fila < len(self.players)-1 else 0)
+			time.sleep(0.5)
+		else:
+			print('Alguem terminou!')
+			for player in self.players:
+				print(player.posicao, player.nome, player.saldo)
+
+
+
+
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+class item_Trilha(object):
+	def __init__(self, number):
+		self.number = number
+		self.status=0
+		self.player=None
+		self.action=None
+
+	#acionado quando o usuario entrar na casa e 
+	#houver uma ação de bonus ou reves para executar
+	def ExecAction(self, player):
+		print(player.nome,  self.action)
+		player.saldo += self.action[1]
+
+	#acionado quando o jogador entra na posição
+	def entra(self, player):
+		player.posicao=self.number
+		self.status=1
+		self.player=player
+		if self.action != None:
+			self.ExecAction(player)
+
+	#acionado quando o jogador sai da posição
+	def sair(self):
+		self.player=None
+		self.status=0
+		
+
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+
+#molde do player com suas propriedades
+class NewPlayer(object):
+	def __init__(self, nome):
+		self.nome	 = nome
+		self.saldo	 = 10000
+		self.posicao = 0
+
+	def andar(self, P_prox, jogo):
+		jogo.trilha[self.posicao].sair()
+		jogo.trilha[P_prox].entra(self)
+
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+		

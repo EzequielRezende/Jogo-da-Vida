@@ -1,0 +1,61 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import json
+import time
+import JogoDaVida 
+
+
+def NewGame():
+	jogo = JogoDaVida.game() #importa a class
+	jogo.firebase_config	["RTBS_url"] = "https://jogodavida-2020-default-rtdb.firebaseio.com/jogos/"
+	jogo.P_Sorte.append(["Ganhou dinheiro de Presente", 500]) #add opções de sorte
+	jogo.P_Reves.append(["Perdeu dinheiro na Rua", -150]) #add opções de reves
+	jogo.AddPlayer("Ezequiel")		# adiciona jogador
+	jogo.AddPlayer("Jaqueline")
+	jogo.AddPlayer("Maicon")
+	jogo.AddPlayer("Ester")
+	jogo.start()
+
+NewGame()
+
+#paramos por aki, uma vez que estamos testando apenas uma instancia
+exit()
+# numero maximo de instancias do jogo rodando em paralelo
+pool = ThreadPoolExecutor(60)
+MultipleGames = []
+for x in range(60):
+    MultipleGames.append(pool.submit(NewGame))
+    time.sleep(1)
+
+'''
+for x in as_completed(MultipleGames):
+    print(x.result())
+'''
+
+
+##############################################
+####### para fins de debug ###################
+##############################################
+'''
+#Printa todos os jogadores
+for x in jogo.players:
+	print(x.nome)
+
+#printa as configurações atuais do game
+print(jogo.config)
+
+#printa as posições de sorte configuradas no game
+print(jogo.P_Sorte)
+
+#printa as posições de reves configuradas no game
+print(jogo.P_Reves)
+
+#printa a Trilha completa
+for x in jogo.trilha:
+	print(jogo.trilha[x].number, jogo.trilha[x].status, jogo.trilha[x].player, jogo.trilha[x].action )
+
+# gira roleta, 
+print(jogo.GiraRoleta())
+
+
+
+# '''
